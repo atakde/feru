@@ -1,0 +1,10 @@
+services:
+  lh-worker:
+    build:
+      context: .
+      # platform here works for build too, but build command override preferred
+      # platform: linux/amd64  
+    platform: linux/amd64          # <-- specify platform for container runtime
+    command: ["node", "runner.js"]
+    env_file:
+      - .env
