@@ -1,18 +1,17 @@
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 export class S3Uploader {
   constructor(config) {
     this.validateConfig(config);
-    this.s3 = new AWS.S3({
+    this.s3Client = new S3Client({
       region: config.region,
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey,
+      signatureVersion: 'v4' // Optional, can be omitted in AWS SDK v3
     });
     this.bucketName = config.bucketName;
   }
 
   validateConfig(config) {
-    const requiredFields = ['region', 'accessKeyId', 'secretAccessKey', 'bucketName'];
+    const requiredFields = ['region', 'bucketName'];
     const missingFields = requiredFields.filter(field => !config[field]);
     
     if (missingFields.length > 0) {
@@ -21,16 +20,16 @@ export class S3Uploader {
   }
 
   async upload(key, body, contentType) {
-    const params = {
+    const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: key,
       Body: body,
       ContentType: contentType,
-    };
+    });
 
     try {
       console.log(`Uploading ${key} to bucket ${this.bucketName}...`);
-      const result = await this.s3.upload(params).promise();
+      const result = await this.s3Client.send(command);
       console.log(`Successfully uploaded ${key}`);
       return result;
     } catch (error) {
