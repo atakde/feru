@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",
+    "@supabase/supabase-js": "^2.49.10",
     "chrome-launcher": "^1.2.0",
     "lighthouse": "^12.6.1"
   }
