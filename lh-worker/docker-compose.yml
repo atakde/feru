@@ -1,5 +1,5 @@
 services:
-  lh-worker:
+  worker:
     build:
       context: .
       # platform here works for build too, but build command override preferred
