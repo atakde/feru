@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Select, SelectItem, Input } from "@nextui-org/react";
-import { Button } from "@nextui-org/button";
+import { Select, SelectItem, Input } from "@heroui/react";
+import { Button } from "@heroui/button";
 import GlobalOutlined from '@ant-design/icons/GlobalOutlined';
 import DesktopOutlined from '@ant-design/icons/DesktopOutlined';
 import MobileOutlined from '@ant-design/icons/MobileOutlined';
@@ -50,14 +50,12 @@ export default function Home() {
         throw new Error(response.statusText);
       }
       const result = await response.json();
-      if (result?.data?.id) {
-        router.push(`/lh/${result.data.id}`);
+      if (result?.content?.id) {
+        router.push(`/lh/${result.content.id}`);
       }
     }
     catch (error) {
       console.error(error);
-    }
-    finally {
       setLoading(false);
     }
   }
@@ -177,12 +175,12 @@ export default function Home() {
                   <Button
                     type="primary"
                     className="mt-4"
-                    size="large"
+                    size="md"
                     onClick={handleSubmit}
                     isLoading={loading}
                     spinner={
                       <svg
-                        className="animate-spin h-5 w-5 text-current"
+                        className="animate-spin text-current"
                         fill="none"
                         viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg"
