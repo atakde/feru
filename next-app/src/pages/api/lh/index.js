@@ -30,6 +30,11 @@ export default async function handler(req, res) {
   const urlWithProtocol = url.startsWith('https') ? url : `https://${url}`;
   const supabase = createClient({ req, res });
   
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    res.status(401).json({ message: "Unauthorized: User not authenticated" });
+  }
+  
   const ip = req?.ip;
 
   const { data, error } = await supabase.from("lighthouse_job").insert([
@@ -37,7 +42,7 @@ export default async function handler(req, res) {
       url: urlWithProtocol,
       device,
       ip,
-      username: 'anonymous', // TODO: replace with actual username if available
+      user_id: user.id,
       regions: parsedRegions,
     },
   ]).select();

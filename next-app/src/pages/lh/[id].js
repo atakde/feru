@@ -20,7 +20,12 @@ export default function LighthouseResults() {
 
     const poll = async () => {
       try {
-        const response = await fetch(`/api/lh/${id}`);
+        const response = await fetch(`/api/lh/${id}`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
         if (!response.ok) {
           throw new Error(response.statusText);
         }
