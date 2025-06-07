@@ -4,14 +4,14 @@ export class S3Uploader {
   constructor(config) {
     this.validateConfig(config);
     this.s3Client = new S3Client({
-      region: config.region,
+      region: 'us-east-1', // Default region, can be changed as needed
       signatureVersion: 'v4' // Optional, can be omitted in AWS SDK v3
     });
     this.bucketName = config.bucketName;
   }
 
   validateConfig(config) {
-    const requiredFields = ['region', 'bucketName'];
+    const requiredFields = ['bucketName'];
     const missingFields = requiredFields.filter(field => !config[field]);
     
     if (missingFields.length > 0) {

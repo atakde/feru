@@ -1,5 +1,4 @@
 const requiredVars = {
-  AWS_REGION: 'AWS Region',
   S3_BUCKET_NAME: 'S3 Bucket Name'
 };
 
@@ -17,7 +16,6 @@ export const getConfig = () => {
   validateEnvVariables();
   
   return {
-    region: process.env.AWS_REGION,
     bucketName: process.env.S3_BUCKET_NAME
   };
 };

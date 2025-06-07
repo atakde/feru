@@ -16,6 +16,7 @@ export const getConfig = () => {
   validateEnvVariables();
   
   return {
-    url: process.env.URL
+    url: process.env.URL,
+    region: process.env.AWS_REGION
   };
 };
