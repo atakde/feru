@@ -14,6 +14,7 @@ import {
   NavbarMenuToggle,
   Button
 } from "@heroui/react";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 const menuItems = [
@@ -32,6 +33,7 @@ const menuItems = [
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <Navbar isBordered onMenuOpenChange={setIsMenuOpen} maxWidth="2xl">
@@ -43,19 +45,24 @@ export default function Header() {
         <p className="font-bold text-inherit">FERU</p>
       </NavbarContent>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        <NavbarItem isActive>
-          <Link color="foreground" href="#">
+        <NavbarItem isActive={router.pathname === "/"}>
+          <Link color="foreground" href="/">
+            Measure
+          </Link>
+        </NavbarItem>
+        <NavbarItem isActive={router.pathname === "/features"}>
+          <Link color="foreground" href="/features">
             Features
           </Link>
         </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="#">
-            Customers
+        <NavbarItem isActive={router.pathname === "/api-docs"}>
+          <Link color="foreground" href="">
+            API
           </Link>
         </NavbarItem>
-        <NavbarItem>
+        <NavbarItem isActive={router.pathname === "/pricing"}>
           <Link color="foreground" href="#">
-            Integrations
+            Pricing
           </Link>
         </NavbarItem>
       </NavbarContent>
