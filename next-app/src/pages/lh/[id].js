@@ -54,26 +54,7 @@ export default function LighthouseResults() {
     };
   }, [id]);
 
-  const getShortPerformanceMetric = (metric) => {
-    switch (metric) {
-      case 'first-contentful-paint':
-        return 'FCP';
-      case 'largest-contentful-paint':
-        return 'LCP';
-      case 'cumulative-layout-shift':
-        return 'CLS';
-      case 'total-blocking-time':
-        return 'TBT';
-      case 'speed-index':
-        return 'SI';
-      case 'interactive':
-        return 'TTI';
-      case 'server-response-time':
-        return 'SRT';
-      default:
-        return metric.replace(/-/g, ' ').toUpperCase();
-    }
-  };
+
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -158,10 +139,10 @@ export default function LighthouseResults() {
                       <div className="flex items-center gap-4 py-2 mb-4">
                           <div className='space-y-1'>
                           <p className="text-sm">
-                            {testData?.status === 'COMPLETED' ? `Finished at ${new Date(testData.finished_at).toLocaleString()}` : 'In Progress'}
+                            {testData?.status === 'COMPLETED' ? `Finished at ${new Date(testData.completed_at).toLocaleString()}` : 'In Progress'}
                           </p>
                           <p className="text-sm">
-                            Took {testData?.status === 'COMPLETED' ? `${Math.round((new Date(testData.finished_at) - new Date(testData.created_at)) / 1000)} seconds` : 'N/A'}
+                            Took {testData?.status === 'COMPLETED' ? `${Math.round((new Date(testData.completed_at) - new Date(testData.created_at)) / 1000)} seconds` : 'N/A'}
                           </p>
                         </div>
                       </div>
@@ -172,13 +153,13 @@ export default function LighthouseResults() {
                             <p className="font-medium capitalize">{testData?.device}</p>
                           </div>
                           <div>
-                            <p className="text-default-500 mb-1">Region</p>
-                            <p className="font-medium">{testData?.region}</p>
+                            <p className="text-default-500 mb-1">Regions</p>
+                            <p className="font-medium">{testData?.regions?.join(', ') || 'N/A'}</p>
                           </div>
-                          <div>
+                          {/* <div>
                             <p className="text-default-500 mb-1">Lighthouse Version</p>
                             <p className="font-medium">{testData.results?.metrics?.lighthouseVersion}</p>
-                          </div>
+                          </div> */}
                           <div>
                             <p className="text-default-500 mb-1">Test Date</p>
                             <p className="font-medium">{new Date(testData?.created_at).toLocaleString()}</p>
@@ -192,7 +173,7 @@ export default function LighthouseResults() {
 
 
               {/* Regional Performance */}
-              {testData.results?.metrics?.audits && (
+              {testData.results && (
                 <Card className="w-full shadow-sm">
                   <CardBody className="p-6">
                     <h3 className="text-md font-semibold mb-4">Regional Performance Metrics</h3>
@@ -200,9 +181,13 @@ export default function LighthouseResults() {
                       The following metrics are based on the Lighthouse test results for different regions.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                      {['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1'].map((region) => {
-                        const isAvailable = testData?.region === region;
-                        const audits = testData.results?.metrics?.audits;
+                      {['us-east-1', 'eu-central-1', 'ap-southeast-1', 'eu-north-1'].map((region) => {
+                        const regionalResult = testData.results?.find((result) => result.region === region);                       
+                        const isAvailable = regionalResult && regionalResult.status === 'COMPLETED';
+                        const audits = regionalResult?.metrics || {};
+
+                        console.log('regionalResult:', regionalResult);
+                        console.log(`Region: ${region}, Available: ${isAvailable}`, audits);
 
                         return (
                           <Card key={region} className="bg-default-50 shadow-sm">
@@ -211,7 +196,7 @@ export default function LighthouseResults() {
                                 <div className="flex items-center gap-2">
                                   <span className="text-xl">
                                     {region === 'us-east-1' && '🇺🇸'}
-                                    {region === 'us-west-2' && '🇺🇸'}
+                                    {region === 'eu-central-1' && '🇩🇪'}
                                     {region === 'eu-west-1' && '🇪🇺'}
                                     {region === 'ap-southeast-1' && '🇸🇬'}
                                   </span>
@@ -230,23 +215,24 @@ export default function LighthouseResults() {
                               {isAvailable ? (
                                 <div className="space-y-4">
                                   {[
-                                    'first-contentful-paint',
-                                    'largest-contentful-paint',
-                                    'server-response-time',
-                                    'interactive'
+                                    'cls',
+                                    'fcp',
+                                    'lcp',
+                                    'tbt',
+                                    'tti',
                                   ].map((metric) => {
                                     const audit = audits?.[metric];
                                     if (!audit) return null;
 
-                                    const scoreColor = audit.score >= 0.9 ? 'success' : audit.score >= 0.5 ? 'warning' : 'danger';
+                                    const auditColor = audit >= 0.9 ? 'success' : audit >= 0.5 ? 'warning' : 'danger';
 
                                     console.log(audit);
                                     return (
                                       <div key={metric} className="p-3 bg-white rounded-lg flex flex-col gap-2">
                                         <div className="flex justify-between items-center">
-                                          <span className="text-sm font-medium">{getShortPerformanceMetric(metric)}</span>
-                                          <Chip size="sm" color={scoreColor} variant="flat">
-                                            {audit.displayValue}
+                                          <span className="text-sm font-medium">{metric.toUpperCase()}</span>
+                                          <Chip size="sm" color={auditColor} variant="flat">
+                                            {audit.toFixed(2)}
                                           </Chip>
                                         </div>
                                       </div>
@@ -263,7 +249,7 @@ export default function LighthouseResults() {
                                 <p className="mt-6 text-sm text-default-500">
                                   You can view the full report for this region on the{' '}
                                   <a
-                                    href={testData.results?.html_report_url}
+                                    href={regionalResult.s3_report_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-primary-600 hover:underline"

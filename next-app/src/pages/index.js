@@ -119,6 +119,8 @@ export default function Home() {
                       labelPlacement="outside"
                       defaultSelectedKeys={['us-east-1']}
                       startContent={<GlobalOutlined />}
+                      disabledKeys={['ap-south-1', 'eu-north-1']}
+                      selectionMode="multiple"
                       onChange={(value) => handleChange(value, 'region')}
                       popoverProps={{
                         classNames: {

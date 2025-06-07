@@ -20,9 +20,11 @@ export default async function handler(req, res) {
     res.status(400).json({ message: "Region is required" });
   }
 
+  const parsedRegions = region.split(',').map(r => r.trim());
   const availableRegions = ['us-east-1', 'us-west-2', 'eu-west-1', 'ap-southeast-1', 'eu-central-1'];
-  if (!availableRegions.includes(region)) {
-    res.status(400).json({ message: `Region must be one of ${availableRegions.join(', ')}` });
+
+  if (!parsedRegions.every(r => availableRegions.includes(r))) {
+    res.status(400).json({ message: "Invalid region(s) provided" });
   }
 
   const urlWithProtocol = url.startsWith('https') ? url : `https://${url}`;
@@ -30,12 +32,12 @@ export default async function handler(req, res) {
   
   const ip = req?.ip;
 
-  const { data, error } = await supabase.from("lighthouse").insert([
+  const { data, error } = await supabase.from("lighthouse_job").insert([
     {
       url: urlWithProtocol,
       device,
-      region,
-      ip    
+      ip,
+      username: 'anonymous', // TODO: replace with actual username if available
     },
   ]).select();
 
@@ -44,15 +46,24 @@ export default async function handler(req, res) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 
-  const taskResult = await orchestrateLighthouseAnalysis({
-    traceId: data[0].id,
-    url: urlWithProtocol,
-    device,
-    region: 'us-east-1' // temporary
-  });
+  let hasErrorInLHService = false;
+  for (const eachRegion of parsedRegions) {
+    const taskResult = await orchestrateLighthouseAnalysis({
+      traceId: data[0].id,
+      url: urlWithProtocol,
+      device,
+      region:eachRegion
+    });
 
-  console.log("Task Result:", taskResult);
-  if (!taskResult || !taskResult.taskArn) {
+    console.log("Task Result:", taskResult);
+    if (!taskResult || !taskResult.taskArn) {
+      hasErrorInLHService = true;
+      break;
+    }
+  }
+
+  // TODO:: log error to a monitoring service
+  if (hasErrorInLHService) {
     await supabase.from("lighthouse").update({ status: 'FAILED' }).eq('id', data[0].id);
     res.status(500).json({ message: "Failed to orchestrate Lighthouse analysis" });
   }

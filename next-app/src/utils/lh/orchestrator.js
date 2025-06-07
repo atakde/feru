@@ -10,11 +10,13 @@ const REGION_CONFIGS = {
   'us-east-1': {
     clusterName: process.env.ECS_CLUSTER_NAME_US_EAST_1,
     taskDefinition: process.env.ECS_TASK_DEFINITION_US_EAST_1,
+    subnetID: process.env.AWS_SUBNET_ID_US_EAST_1,
   },
-  //   'eu-west-1': {
-  //     clusterName: process.env.ECS_CLUSTER_NAME_EU_WEST_1,
-  //     taskDefinition: process.env.ECS_TASK_DEFINITION_EU_WEST_1,
-  //   },
+  'eu-central-1': {
+    clusterName: process.env.ECS_CLUSTER_NAME_EU_CENTRAL_1,
+    taskDefinition: process.env.ECS_TASK_DEFINITION_EU_CENTRAL_1,
+    subnetID: process.env.AWS_SUBNET_ID_EU_CENTRAL_1,
+  },
 };
 
 export async function orchestrateLighthouseAnalysis({ traceId, url, region = DEFAULT_REGION, memory = DEFAULT_MEMORY, cpu = DEFAULT_CPU }) {
@@ -54,7 +56,7 @@ export async function orchestrateLighthouseAnalysis({ traceId, url, region = DEF
       launchType: 'FARGATE',
       networkConfiguration: {
         awsvpcConfiguration: {
-          subnets: [process.env.AWS_SUBNET_ID],
+          subnets: [REGION_CONFIGS[region].subnetID],
           assignPublicIp: 'ENABLED'
         }
       },
