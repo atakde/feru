@@ -38,6 +38,7 @@ export default async function handler(req, res) {
       device,
       ip,
       username: 'anonymous', // TODO: replace with actual username if available
+      regions: parsedRegions,
     },
   ]).select();
 

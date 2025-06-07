@@ -15,21 +15,29 @@ export default function LighthouseResults() {
   useEffect(() => {
     if (!id) return;
 
-    const pollInterval = setInterval(async () => {
+    let pollInterval;
+    let timeout;
+
+    const poll = async () => {
       try {
         const response = await fetch(`/api/lh/${id}`);
         if (!response.ok) {
           throw new Error(response.statusText);
         }
 
+        setLoading(false);
+        setError(null);
+
         const data = await response.json();
+        setTestData(data);
 
         if (data.status === 'COMPLETED') {
           clearInterval(pollInterval);
-          setLoading(false);
+          clearTimeout(timeout);
           setTestData(data);
         } else if (data.status === 'FAILED') {
           clearInterval(pollInterval);
+          clearTimeout(timeout);
           setLoading(false);
           setError('Test failed');
         }
@@ -37,12 +45,16 @@ export default function LighthouseResults() {
         console.error('Polling error:', error);
         setError(error.message);
         clearInterval(pollInterval);
+        clearTimeout(timeout);
         setLoading(false);
       }
-    }, 2000);
+    };
 
-    // Clear interval after 5 minutes (timeout)
-    const timeout = setTimeout(() => {
+    poll();
+
+    pollInterval = setInterval(poll, 2000);
+
+    timeout = setTimeout(() => {
       clearInterval(pollInterval);
       setLoading(false);
       setError('Test timed out');
@@ -53,8 +65,6 @@ export default function LighthouseResults() {
       clearTimeout(timeout);
     };
   }, [id]);
-
-
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -71,50 +81,9 @@ export default function LighthouseResults() {
 
   if (loading) {
     return (
-      <>
-        <Header />
-        <div className="relative isolate px-6 pt-14 lg:px-8">
-          <div className="mx-auto max-w-7xl py-32 sm:py-48 lg:py-56">
-            <div className="flex flex-col items-center justify-center space-y-8">
-              <Spinner size="lg" color="primary" />
-              <div className="text-center space-y-4">
-                <h2 className="text-2xl font-semibold">Running Lighthouse Test...</h2>
-                <p className="text-default-500">This may take a few moments</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <Header />
-        <div className="relative isolate px-6 pt-14 lg:px-8">
-          <div className="mx-auto max-w-7xl py-32 sm:py-48 lg:py-56">
-            <Card className="max-w-md mx-auto">
-              <CardBody className="text-center space-y-4">
-                <div className="text-danger">
-                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-semibold text-danger">Error</h2>
-                <p className="text-default-500">{error}</p>
-                <Button
-                  color="primary"
-                  variant="flat"
-                  onClick={() => router.push('/')}
-                >
-                  Try Again
-                </Button>
-              </CardBody>
-            </Card>
-          </div>
-        </div>
-      </>
+      <div className="flex items-center justify-center h-screen">
+        <Spinner color="primary" label="Loading..." />
+      </div>
     );
   }
 
@@ -137,9 +106,9 @@ export default function LighthouseResults() {
                         </Chip>
                       </div>
                       <div className="flex items-center gap-4 py-2 mb-4">
-                          <div className='space-y-1'>
+                        <div className='space-y-1'>
                           <p className="text-sm">
-                            {testData?.status === 'COMPLETED' ? `Finished at ${new Date(testData.completed_at).toLocaleString()}` : 'In Progress'}
+                            {testData?.status === 'COMPLETED' ? `Finished at ${new Date(testData.completed_at).toLocaleString()}` : 'Test is still running'}
                           </p>
                           <p className="text-sm">
                             Took {testData?.status === 'COMPLETED' ? `${Math.round((new Date(testData.completed_at) - new Date(testData.created_at)) / 1000)} seconds` : 'N/A'}
@@ -182,16 +151,14 @@ export default function LighthouseResults() {
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                       {['us-east-1', 'eu-central-1', 'ap-southeast-1', 'eu-north-1'].map((region) => {
-                        const regionalResult = testData.results?.find((result) => result.region === region);                       
+                        const regionalResult = testData.results?.find((result) => result.region === region);
                         const isAvailable = regionalResult && regionalResult.status === 'COMPLETED';
                         const audits = regionalResult?.metrics || {};
-
-                        console.log('regionalResult:', regionalResult);
-                        console.log(`Region: ${region}, Available: ${isAvailable}`, audits);
+                        const isTestRunningForTheRegion = testData?.regions?.includes(region);
 
                         return (
                           <Card key={region} className="bg-default-50 shadow-sm">
-                            <CardBody className={`p-4 ${isAvailable ? '' : 'opacity-50'}`}>
+                            <CardBody className={`p-4 ${(isAvailable || isTestRunningForTheRegion) ? '' : 'opacity-50'}`}>
                               <div className="flex justify-between items-center mb-4">
                                 <div className="flex items-center gap-2">
                                   <span className="text-xl">
@@ -204,13 +171,7 @@ export default function LighthouseResults() {
                                     {region.replace('-', ' ').toUpperCase()}
                                   </Chip>
                                 </div>
-                                {!isAvailable && (
-                                  <Chip size="sm" variant="flat" color="default" className="opacity-50">
-                                    Not Available
-                                  </Chip>
-                                )}
                               </div>
-
 
                               {isAvailable ? (
                                 <div className="space-y-4">
@@ -241,7 +202,11 @@ export default function LighthouseResults() {
                                 </div>
                               ) : (
                                 <div className="text-center text-default-400 text-sm mt-8">
-                                  Regional test data is not available.
+                                  {(regionalResult?.status === 'RUNNING' || isTestRunningForTheRegion) ? (
+                                    <Spinner size="sm" />
+                                  ) : (
+                                    <p>Test results are not available for this region.</p>
+                                  )}
                                 </div>
                               )}
 

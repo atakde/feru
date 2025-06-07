@@ -18,7 +18,6 @@ export default function Home() {
   });
 
   const handleChange = (el, name) => {
-    console.log(el, name);
     setData({
       ...data,
       [name]: el.target.value,
@@ -96,14 +95,13 @@ export default function Home() {
                 <div className='flex flex-col gap-4 w-full max-w-xl px-4 mt-8'>
                   <div className='flex flex-col gap-4'>
                     <Input
-                      type="url"
                       placeholder="example.com"
                       labelPlacement="outside"
                       label="Website URL"
                       classNames={{
                         base: "max-w-xl",
                       }}
-                      value={data.url}
+                      value={data?.url}
                       onChange={(e) => handleUrlChange(e.target.value)}
                       startContent={
                         <div className="pointer-events-none flex items-center">
@@ -211,7 +209,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        </div>
-      </>
-      );
+      </div>
+    </>
+  );
 }

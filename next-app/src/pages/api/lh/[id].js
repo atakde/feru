@@ -12,7 +12,6 @@ export default async function handler(req, res) {
 
   const supabase = createClient({ req, res });
 
-  // Fetch the job
   const { data: jobData, error: jobError } = await supabase
     .from("lighthouse_job")
     .select("*")
@@ -55,13 +54,6 @@ export default async function handler(req, res) {
     },
   }));
 
-  const regions = regionResults.reduce((acc, result) => {
-    if (!acc.includes(result.region)) {
-      acc.push(result.region);
-    }
-    return acc;
-  }, []);
-
   return res.status(200).json({
     status: jobData.status,
     url: jobData.url,
@@ -70,7 +62,7 @@ export default async function handler(req, res) {
     username: jobData.username,
     created_at: jobData.created_at,
     completed_at: jobData.completed_at,
-    regions,
+    regions: jobData.regions,
     results,
   });
 }
