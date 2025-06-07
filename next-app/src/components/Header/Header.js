@@ -11,7 +11,8 @@ import {
   Avatar,
   NavbarMenuItem,
   NavbarMenu,
-  NavbarMenuToggle
+  NavbarMenuToggle,
+  Button
 } from "@heroui/react";
 import { useState } from "react";
 
@@ -33,7 +34,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <Navbar isBordered onMenuOpenChange={setIsMenuOpen}>
+    <Navbar isBordered onMenuOpenChange={setIsMenuOpen} maxWidth="2xl">
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -60,7 +61,7 @@ export default function Header() {
       </NavbarContent>
 
       <NavbarContent as="div" justify="end">
-        <Dropdown placement="bottom-end">
+        {/* <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <Avatar
               isBordered
@@ -87,7 +88,12 @@ export default function Header() {
               Log Out
             </DropdownItem>
           </DropdownMenu>
-        </Dropdown>
+        </Dropdown> */}
+        <NavbarItem>
+          <Button as={Link} color="primary" href="#" variant="flat">
+            Sign Up
+          </Button>
+        </NavbarItem>
       </NavbarContent>
       <NavbarMenu>
         {menuItems.map((item, index) => (

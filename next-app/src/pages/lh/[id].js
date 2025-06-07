@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Header from "@/components/Header";
-import { Button } from "@heroui/react";
+import { BreadcrumbItem, Breadcrumbs } from "@heroui/react";
 import { Card, CardBody } from "@heroui/react";
 import { Chip, Spinner } from "@heroui/react";
 
@@ -86,20 +86,27 @@ export default function LighthouseResults() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Spinner color="primary" label="Loading..." />
-      </div>
+      <>
+        <Header />
+        <div className="flex items-center justify-center h-screen">
+          <Spinner color="primary" label="Loading..." />
+        </div>
+      </>
     );
   }
 
   return (
     <>
       <Header />
-      <div className="relative isolate px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl py-8 sm:py-12">
+      <div className="relative isolate px-2 max-w-[1536px] mx-auto">
+        <div className="mx-auto py-8 sm:py-12">
           {testData && (
             <div className="space-y-8">
               {/* Test Details */}
+              <Breadcrumbs className="px-4 mb-6" variant='solid'>
+                <BreadcrumbItem href="/">Lighthouse Tests</BreadcrumbItem>
+                <BreadcrumbItem href={`/lh/${id}`}>Test ID: {id}</BreadcrumbItem>
+              </Breadcrumbs>
               <Card className="w-full shadow-sm bg-white">
                 <CardBody className="p-6">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
