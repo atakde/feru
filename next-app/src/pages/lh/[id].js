@@ -57,7 +57,7 @@ export default function LighthouseResults() {
 
     poll();
 
-    pollInterval = setInterval(poll, 2000);
+    pollInterval = setInterval(poll, 5000);
 
     timeout = setTimeout(() => {
       clearInterval(pollInterval);
