@@ -3,7 +3,6 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Link,
   DropdownItem,
   DropdownTrigger,
   Dropdown,
@@ -16,6 +15,7 @@ import {
 } from "@heroui/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import Link from "next/link";
 
 const menuItems = [
   "Profile",
