@@ -13,7 +13,7 @@ export default function Pricing() {
       price: "$0",
       features: [
         "Monitor 3 URLs daily",
-        "3 Regions available",
+        "2 Regions available",
         "Basic Support",
         "No API Access",
         "No Custom Headers",

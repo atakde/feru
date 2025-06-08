@@ -45,7 +45,7 @@ export default function Header() {
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className="sm:hidden"
         />
-        <p className="font-bold text-inherit">FERU</p>
+        <Link href="/" className="font-bold text-inherit">FERU</Link>
       </NavbarContent>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem isActive={router.pathname === "/"}>
