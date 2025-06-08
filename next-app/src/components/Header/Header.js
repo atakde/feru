@@ -56,7 +56,7 @@ export default function Header() {
           </Link>
         </NavbarItem>
         <NavbarItem isActive={router.pathname === "/api-docs"}>
-          <Link color="foreground" href="">
+          <Link color="foreground" href="/api-docs">
             API
           </Link>
         </NavbarItem>

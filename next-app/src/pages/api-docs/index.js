@@ -1,6 +1,7 @@
 import { Card, CardBody, Button, Chip } from "@heroui/react";
 import { Accordion, AccordionItem } from "@heroui/react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function ApiDocs() {
   const endpoints = [
@@ -237,6 +238,7 @@ export default function ApiDocs() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 } 
