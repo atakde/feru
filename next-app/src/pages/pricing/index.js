@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Card, CardBody } from "@heroui/react";
 import { Button } from "@heroui/react";
@@ -93,7 +94,7 @@ export default function Pricing() {
     <>
       <Header />
       <div className="relative isolate px-6 lg:px-8 py-24 sm:py-32">
-        <div className="absolute inset-0 bg-gradient-to-b from-default-50 to-white -z-10" />
+        <div className="absolute inset-0 -z-10" />
         
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center">
@@ -260,6 +261,7 @@ export default function Pricing() {
           </Accordion>
         </div>
       </div>
+      <Footer />
     </>
   );
 } 
