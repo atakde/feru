@@ -14,9 +14,9 @@ import {
   Button
 } from "@heroui/react";
 import { useRouter } from "next/router";
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
   "Profile",
@@ -34,30 +34,9 @@ const menuItems = [
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const router = useRouter();
+  const { user, logout, loading: authLoading } = useAuth();
   const isAnonymous = user?.is_anonymous || false;
-
-  const fetchUser = async () => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
-  };
-
-  const logout = async () => {
-    const supabase = createClient();
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error signing out:", error);
-    } else {
-      setUser(null);
-      router.push("/"); // Redirect to home after logout
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, []);
 
   return (
     <Navbar isBordered onMenuOpenChange={setIsMenuOpen} maxWidth="2xl">
@@ -92,7 +71,7 @@ export default function Header() {
       </NavbarContent>
 
       <NavbarContent as="div" justify="end">
-        {(user && !isAnonymous) && (
+        {(!authLoading && user && !isAnonymous) && (
 
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
@@ -119,7 +98,7 @@ export default function Header() {
           </Dropdown>
         )}
 
-        {(!user || isAnonymous) && (
+        {(!authLoading && (!user || isAnonymous)) && (
           <NavbarItem>
             <Button as={Link} color="primary" href="#" variant="flat" href="/register">
               Sign Up
