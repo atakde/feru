@@ -61,7 +61,7 @@ export default function Header() {
           </Link>
         </NavbarItem>
         <NavbarItem isActive={router.pathname === "/pricing"}>
-          <Link color="foreground" href="#">
+          <Link color="foreground" href="/pricing">
             Pricing
           </Link>
         </NavbarItem>
