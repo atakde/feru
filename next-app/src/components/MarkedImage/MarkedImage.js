@@ -3,9 +3,10 @@ import Marker from "./Marker";
 
 const MarkedImage = ({
   initialMarkers,
-  imageUrl
+  imageUrl,
+  centerMarker = false,
 }) => {
-  const [markers, setMarkers] = useState(initialMarkers);
+  const [markers, setMarkers] = useState(initialMarkers || []);
   const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
   const imgRef = useRef(null);
 
@@ -24,22 +25,13 @@ const MarkedImage = ({
     return () => window.removeEventListener("resize", updateImgSize);
   }, []);
 
-  const addMarker = (e) => {
-    const imgRect = e.target.getBoundingClientRect();
-    const xPercent = ((e.clientX - imgRect.left) / imgRect.width) * 100;
-    const yPercent = ((e.clientY - imgRect.top) / imgRect.height) * 100;
-
-    setMarkers([...markers, { xPercent, yPercent }]);
-  };
-
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block w-full">
       <img
         src={imageUrl}
-        alt="World"
+        alt="Interactive devices visualization"
         ref={imgRef}
-        onClick={addMarker}
-        style={{ width: "100%", height: "auto" }}
+        className="w-full h-auto rounded-lg"
       />
       {markers.map((marker, index) => (
         <Marker
@@ -48,8 +40,22 @@ const MarkedImage = ({
           yPercent={marker.yPercent}
           imgWidth={imgSize.width}
           imgHeight={imgSize.height}
+          label={marker.label}
         />
       ))}
+      {centerMarker && imgSize.width > 0 && (
+        <div
+          className="absolute"
+          style={{
+            top: `${imgSize.height / 2}px`,
+            left: `${imgSize.width / 2}px`,
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+        </div>
+      )}
     </div>
   );
 };
